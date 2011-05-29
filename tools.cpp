@@ -45,6 +45,7 @@
 #endif
 
 #include "engines/agos/extract_agos.h"
+#include "engines/agi/extract_bc.h"
 #include "engines/cine/extract_cine.h"
 #include "engines/cruise/extract_cruise_pc.h"
 #include "engines/agi/extract_ddpg.h"
@@ -81,6 +82,7 @@ Tools::Tools() {
 #endif
 
 	_tools.push_back(new ExtractAgos());
+	_tools.push_back(new ExtractBC());
 	_tools.push_back(new ExtractCine());
 	_tools.push_back(new ExtractCruisePC());
 	_tools.push_back(new ExtractDDPG());
