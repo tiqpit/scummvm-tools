@@ -26,6 +26,7 @@ all:
 #######################################################################
 
 PROGRAMS = \
+	deagi \
 	decine \
 	degob \
 	dekyra \
@@ -86,6 +87,12 @@ bundle: scummvm-tools$(EXEEXT)
 
 
 
+deagi_OBJS := \
+	engines/agi/deagi.o \
+	common/str.o \
+	common/file.o \
+	common/memorypool.o \
+	common/hashmap.o
 
 decine_OBJS := engines/cine/decine.o
 
