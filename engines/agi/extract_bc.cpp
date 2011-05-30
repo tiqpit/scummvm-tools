@@ -107,8 +107,8 @@ void ExtractBC::execute() {
 		in.seek(offset(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
-		writeDirEntry(dir, o);
-		o += extractFile(in, out);
+		writeDirEntry(dir, o, vol);
+		o += extractFile(in, out, vol);
 	}
 	dir.close();
 	print("done!\n");
@@ -131,8 +131,8 @@ void ExtractBC::execute() {
 		in.seek(offset(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
-		writeDirEntry(dir, o);
-		o += extractFile(in, out);
+		writeDirEntry(dir, o, vol);
+		o += extractFile(in, out, vol);
 	}
 	dir.close();
 	print("done!\n");
@@ -155,8 +155,8 @@ void ExtractBC::execute() {
 		in.seek(offset(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
-		writeDirEntry(dir, o);
-		o += extractFile(in, out);
+		writeDirEntry(dir, o, vol);
+		o += extractFile(in, out, vol);
 	}
 	dir.close();
 	print("done!\n");
@@ -179,8 +179,8 @@ void ExtractBC::execute() {
 		in.seek(offset(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
-		writeDirEntry(dir, o);
-		o += extractFile(in, out);
+		writeDirEntry(dir, o, vol);
+		o += extractFile(in, out, vol);
 	}
 	dir.close();
 	print("done!\n");
@@ -200,9 +200,9 @@ bool ExtractBC::readDirEntry(Common::File &in, int *sec, int *off, int *vol) {
 	return true;
 }
 
-void ExtractBC::writeDirEntry(Common::File &dir, int off) {
+void ExtractBC::writeDirEntry(Common::File &dir, int off, int vol) {
 	if (off >= 0) {
-		dir.writeByte((off >> 16) & 0xF);
+		dir.writeByte(((off >> 16) & 0xF) | ((vol & 0xF) << 4));
 		dir.writeByte((off >> 8) & 0xFF);
 		dir.writeByte(off & 0xFF);
 	} else {
@@ -212,7 +212,7 @@ void ExtractBC::writeDirEntry(Common::File &dir, int off) {
 	}
 }
 
-int ExtractBC::extractFile(Common::File &in, Common::File &out) {
+int ExtractBC::extractFile(Common::File &in, Common::File &out, int vol) {
 	// Check header from image
 	int signature = in.readUint16BE();
 	in.readByte();
@@ -226,7 +226,7 @@ int ExtractBC::extractFile(Common::File &in, Common::File &out) {
 	// Write header to VOL file
 	out.writeByte(0x12);
 	out.writeByte(0x34);
-	out.writeByte(0);
+	out.writeByte(vol);
 	out.writeByte(length);
 	out.writeByte(length >> 8);
 	

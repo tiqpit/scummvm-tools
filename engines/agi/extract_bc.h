@@ -27,8 +27,8 @@ public:
 	virtual void execute();
 
 	bool readDirEntry(Common::File &, int *, int *, int *);
-	int extractFile(Common::File &, Common::File &);
-	void writeDirEntry(Common::File &, int);
+	int extractFile(Common::File &, Common::File &, int);
+	void writeDirEntry(Common::File &, int, int);
 };
 
 #endif
