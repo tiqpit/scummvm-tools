@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "deagi.h"
 #include "common/endian.h"
 
@@ -12,6 +13,7 @@ Disassembler::Disassembler(Common::Filename path) {
 		exit(1);
 	}
 	_script = new uint8[MAX_SCRIPT_SIZE];
+	memset(_script, 0, MAX_SCRIPT_SIZE);
 	in.read_noThrow(_script, _scriptSize);
 
 	// Decrypt and parse the string section
@@ -43,6 +45,7 @@ void Disassembler::parseStrings() {
 	for (int i = 0; i < n; i++) {
 		int pointer = READ_LE_UINT16(_script + offset + i * 2) - 2;
 		if (pointer >= 0 && offset + pointer < _scriptSize)
+			// Unencrypted strings each end with a zero
 			_strings.push_back(Common::String((char*)(_script + offset + pointer)));
 	}
 	
