@@ -40,6 +40,13 @@ public:
 	void setOutputData(bool v) { _outputData = v; }
 
 	/**
+	 * Set version.
+	 *
+	 * @param version  Either 1 or 2, for the two main versions of AGI.
+	 */
+	void setVersion(int version);
+
+	/**
 	 * Perform disassembly.
 	 */
 	void disassemble();
@@ -106,9 +113,10 @@ private:
 	// Opcode handlers
 	typedef void (Disassembler::*OpcodeHandler)();
 	void doOpcode();
-	void doCondition();
 	void doIf();
 	void doGoto();
+	void doCondition();
+	void doSaid();
 	void doUnknown();
 
 	uint8 *_script; ///< Script file in memory
