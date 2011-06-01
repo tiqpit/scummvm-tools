@@ -98,6 +98,7 @@ void ExtractBC::execute() {
 		int sec, off, vol;
 		in0.seek(LOGDIR + 3 * i, SEEK_SET);
 		if (!readDirEntry(in0, &sec, &off, &vol)) {
+			writeDirEntry(dir, -1, -1);
 			continue;
 		}
 
@@ -122,6 +123,7 @@ void ExtractBC::execute() {
 		int sec, off, vol;
 		in0.seek(VIEWDIR + 3 * i, SEEK_SET);
 		if (!readDirEntry(in0, &sec, &off, &vol)) {
+			writeDirEntry(dir, -1, -1);
 			continue;
 		}
 
@@ -146,6 +148,7 @@ void ExtractBC::execute() {
 		int sec, off, vol;
 		in0.seek(PICDIR + 3 * i, SEEK_SET);
 		if (!readDirEntry(in0, &sec, &off, &vol)) {
+			writeDirEntry(dir, -1, -1);
 			continue;
 		}
 
@@ -170,6 +173,7 @@ void ExtractBC::execute() {
 		int sec, off, vol;
 		in0.seek(SNDDIR + 3 * i, SEEK_SET);
 		if (!readDirEntry(in0, &sec, &off, &vol)) {
+			writeDirEntry(dir, -1, -1);
 			continue;
 		}
 
