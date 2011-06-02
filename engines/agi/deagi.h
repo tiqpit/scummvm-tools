@@ -1,25 +1,18 @@
 #ifndef DEAGI_H
 #define DEAGI_H
 
+#include <string.h>
 #include "common/str.h"
 #include "common/file.h"
 #include "common/array.h"
 
 #define MAX_SCRIPT_SIZE 65536
 
-enum ArgumentType {
-	A_NUM = 0,
-	A_VAR,
-	A_FLG,
-	A_STR,
-	A_OBJ,
-	A_NUL
-};
-
 struct Instruction {
 	const char *name; ///< Name of the instruction
-	int n; ///< Number of arguments
-	ArgumentType type[7]; ///< Types of arguments
+	const char *args; ///< A string describing the arguments
+	
+	int getArgumentsLength() { return strlen(args); }
 };
 
 class Disassembler {

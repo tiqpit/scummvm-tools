@@ -4,334 +4,334 @@
 #include "deagi.h"
 #include "common/endian.h"
 
-Instruction insUnknown = { "unknown", 0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } };
+Instruction insUnknown = { "unknown", "" };
 
 Instruction insV1_cond[] = {
-	{ "equaln",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 01
-	{ "equalv",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 02
-	{ "lessn",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 03
-	{ "lessv",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 04
-	{ "greatern",			2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 05
-	{ "greaterv",			2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 06
-	{ "isset",				1, { A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 07
-	{ "issetv",				1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 08
-	{ "...",				4, { A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL } }, // 09
-	{ "posn",				5, { A_OBJ, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } }, // 0A
-	{ "...",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0B
-	{ "...",				2, { A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0C
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0D
-	{ "have.key",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0E
-	{ "...",				2, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0F
-	{ "bit",				2, { A_NUM, A_VAR, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } }, // 10
-	{ "...",				5, { A_OBJ, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } }, // 11
-	{ "...",				5, { A_OBJ, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } }, // 12
+	{ "equaln",				"vn" },		// 01
+	{ "equalv",				"vv" },		// 02
+	{ "lessn",				"vn" },		// 03
+	{ "lessv",				"vv" },		// 04
+	{ "greatern",			"vn" },		// 05
+	{ "greaterv",			"vv" },		// 06
+	{ "isset",				"n" },		// 07
+	{ "issetv",				"v" },		// 08
+	{ "...",				"nnnn" },	// 09
+	{ "posn",				"nnnnn" },	// 0A
+	{ "...",				"n" },		// 0B
+	{ "...",				"nn" },		// 0C
+	{ "...",				"" },		// 0D
+	{ "have.key",			"" },		// 0E
+	{ "...",				"nn" },		// 0F
+	{ "bit",				"nv" },		// 10
+	{ "...",				"nnnnn" },	// 11
+	{ "...",				"nnnnn" },	// 12
 };
 
 Instruction insV1[] = {
-	{ "return",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 00
-	{ "increment",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 01
-	{ "decrement",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 02
-	{ "assignn",			2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 03
-	{ "assignv",			2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 04
-	{ "addn",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 05
-	{ "addv",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 06
-	{ "subn",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 07
-	{ "subv",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 08
-	{ "load.view",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 09
-	{ "animate.obj",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0A
-	{ "new.room",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0B
-	{ "draw.pic",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0C
-	{ "print",				1, { A_STR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0D
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0E
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0F
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 10
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 11
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 12
-	{ "random",				1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 13
-	{ "get",				1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 14
-	{ "drop",				1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 15
-	{ "draw",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 16
-	{ "erase",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 17
-	{ "position",			3, { A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL } }, // 18
-	{ "position.v",			3, { A_NUM, A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } }, // 19
-	{ "get.posn",			3, { A_NUM, A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } }, // 1A
-	{ "set.cel",			2, { A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 1B
-	{ "set.loop",			2, { A_OBJ, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 1C
-	{ "end.of.loop",		2, { A_OBJ, A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 1D
-	{ "reverse.loop",		2, { A_OBJ, A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 1E
-	{ "move.obj",			5, { A_NUM, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } }, // 1F
-	{ "set.view",			2, { A_OBJ, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 20
-	{ "follow.ego",			3, { A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL } }, // 21
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 22
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 23
-	{ "ignore.blocks",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 24
-	{ "observe.blocks",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 25
-	{ "wander",				1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 26
-	{ "reposition",			3, { A_NUM, A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } }, // 27
-	{ "stop.motion",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 28
-	{ "start.motion",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 29
-	{ "stop.cycling",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 2A
-	{ "start.cycling",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 2B
-	{ "stop.update",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 2C
-	{ "start.update",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 2D
-	{ "program.control",	0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 2E
-	{ "player.control",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 2F
-	{ "set.priority",		2, { A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 30
-	{ "release.priority",	1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 31
-	{ "add.to.pic",			6, { A_NUM, A_NUM, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL } }, // 32
-	{ "set.horizon",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 33
-	{ "ignore.horizon",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 34
-	{ "observe.horizon",	1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 35
-	{ "load.logics",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 36
-	{ "object.on.water",	1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 37
-	{ "load.pic",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 38
-	{ "load.sound",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 39
-	{ "sound",				2, { A_NUM, A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 3A
-	{ "stop.sound",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 3B
-	{ "set",				1, { A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 3C
-	{ "reset",				1, { A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 3D
-	{ "...",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 3E
-	{ "new.room.v",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 3F
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 40
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 41
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 42
-	{ "move.obj.v",			5, { A_OBJ, A_VAR, A_VAR, A_VAR, A_VAR, A_NUL, A_NUL } }, // 43
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 44
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 45
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 46
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 47
-	{ "...",				2, { A_NUM, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 48 get.priority??
-	{ "ignore.objs",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 49
-	{ "observe.objs",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 4A
-	{ "distance",			3, { A_NUM, A_NUM, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } }, // 4B
-	{ "object.on.land",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 4C
-	{ "...",				2, { A_NUM, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 4D set.priority.v???
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 4E
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 4F
-	{ "display",			4, { A_NUM, A_NUM, A_NUM, A_STR, A_NUL, A_NUL, A_NUL } }, // 50
-	{ "prevent.input???",	0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 51
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 52
-	{ "...",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 53 ???
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 54 ???
-	{ "stop.motion",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 55 or force.update??
-	{ "discard.view",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 56
-	{ "discard.pic",		1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 57
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 58
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 59
-	{ "last.cel",			2, { A_NUM, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 5A
-	{ "set.cel.v",			2, { A_NUM, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 5B
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 5C
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 5D
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 5E
-	{ "...",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 5F
-	{ "setbit",				2, { A_NUM, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 60
+	{ "return",				"" },		// 00
+	{ "increment",			"v" },		// 01
+	{ "decrement",			"v" },		// 02
+	{ "assignn",			"vn" },		// 03
+	{ "assignv",			"vv" },		// 04
+	{ "addn",				"vn" },		// 05
+	{ "addv",				"vv" },		// 06
+	{ "subn",				"vn" },		// 07
+	{ "subv",				"vv" },		// 08
+	{ "load.view",			"n" },		// 09
+	{ "animate.obj",		"n" },		// 0A
+	{ "new.room",			"n" },		// 0B
+	{ "draw.pic",			"v" },		// 0C
+	{ "print",				"s" },		// 0D
+	{ "...",				"" },		// 0E
+	{ "...",				"" },		// 0F
+	{ "...",				"" },		// 10
+	{ "...",				"" },		// 11
+	{ "...",				"" },		// 12
+	{ "random",				"v" },		// 13
+	{ "get",				"n" },		// 14
+	{ "drop",				"n" },		// 15
+	{ "draw",				"n" },		// 16
+	{ "erase",				"n" },		// 17
+	{ "position",			"nnn" },	// 18
+	{ "position.v",			"nvv" },	// 19
+	{ "get.posn",			"nvv" },	// 1A
+	{ "set.cel",			"nn" },		// 1B
+	{ "set.loop",			"nn" },		// 1C
+	{ "end.of.loop",		"nn" },		// 1D
+	{ "reverse.loop",		"nn" },		// 1E
+	{ "move.obj",			"nnnnn" },	// 1F
+	{ "set.view",			"nn" },		// 20
+	{ "follow.ego",			"nnn" },	// 21
+	{ "...",				"" },		// 22
+	{ "...",				"" },		// 23
+	{ "ignore.blocks",		"n" },		// 24
+	{ "observe.blocks",		"n" },		// 25
+	{ "wander",				"n" },		// 26
+	{ "reposition",			"nvv" },	// 27
+	{ "stop.motion",		"n" },		// 28
+	{ "start.motion",		"n" },		// 29
+	{ "stop.cycling",		"n" },		// 2A
+	{ "start.cycling",		"n" },		// 2B
+	{ "stop.update",		"n" },		// 2C
+	{ "start.update",		"n" },		// 2D
+	{ "program.control",	"" },		// 2E
+	{ "player.control",		"" },		// 2F
+	{ "set.priority",		"nn" },		// 30
+	{ "release.priority",	"n" },		// 31
+	{ "add.to.pic",			"nnnnnn" },	// 32
+	{ "set.horizon",		"n" },		// 33
+	{ "ignore.horizon",		"n" },		// 34
+	{ "observe.horizon",	"n" },		// 35
+	{ "load.logics",		"n" },		// 36
+	{ "object.on.water",	"n" },		// 37
+	{ "load.pic",			"v" },		// 38
+	{ "load.sound",			"n" },		// 39
+	{ "sound",				"nn" },		// 3A
+	{ "stop.sound",			"" },		// 3B
+	{ "set",				"n" },		// 3C
+	{ "reset",				"n" },		// 3D
+	{ "...",				"n" },		// 3E
+	{ "new.room.v",			"v" },		// 3F
+	{ "...",				"" },		// 40
+	{ "...",				"" },		// 41
+	{ "...",				"" },		// 42
+	{ "move.obj.v",			"nvvvv" },	// 43
+	{ "...",				"" },		// 44
+	{ "...",				"" },		// 45
+	{ "...",				"" },		// 46
+	{ "...",				"" },		// 47
+	{ "...",				"nv" },		// 48 get.priority??
+	{ "ignore.objs",		"n" },		// 49
+	{ "observe.objs",		"n" },		// 4A
+	{ "distance",			"nnv" },	// 4B
+	{ "object.on.land",		"n" },		// 4C
+	{ "...",				"nv" },		// 4D set.priority.v???
+	{ "...",				"" },		// 4E
+	{ "...",				"" },		// 4F
+	{ "display",			"nnns" },	// 50
+	{ "prevent.input???",	"" },		// 51
+	{ "...",				"" },		// 52
+	{ "...",				"n" },		// 53 ???
+	{ "...",				"" },		// 54 ???
+	{ "stop.motion",		"" },		// 55 or force.update??
+	{ "discard.view",		"n" },		// 56
+	{ "discard.pic",		"v" },		// 57
+	{ "...",				"" },		// 58
+	{ "...",				"" },		// 59
+	{ "last.cel",			"nv" },		// 5A
+	{ "set.cel.v",			"nv" },		// 5B
+	{ "...",				"" },		// 5C
+	{ "...",				"" },		// 5D
+	{ "...",				"" },		// 5E
+	{ "...",				"" },		// 5F
+	{ "setbit",				"nv" },		// 60
 };
 
 Instruction insV2_cond[] = {
-	{ "equaln",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 01
-	{ "equalv",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 02
-	{ "lessn",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 03
-	{ "lessv",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 04
-	{ "greatern",			2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 05
-	{ "greaterv",			2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 06
-	{ "isset",				1, { A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 07
-	{ "issetv",				1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 08
-	{ "has",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 09
-	{ "obj.in.room",		2, { A_NUM, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0A
-	{ "posn",				5, { A_OBJ, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } }, // 0B
-	{ "controller",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0C
-	{ "have.key",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0D
-	{ "said",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0E
-	{ "compare.strings",	2, { A_STR, A_STR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } }, // 0F
-	{ "obj.in.box",			5, { A_OBJ, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } }, // 10
-	{ "center.posn",		5, { A_OBJ, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } }, // 11
-	{ "right.posn",			5, { A_OBJ, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } }, // 12
+	{ "equaln",				"vn" },		// 01
+	{ "equalv",				"vv" },		// 02
+	{ "lessn",				"vn" },		// 03
+	{ "lessv",				"vv" },		// 04
+	{ "greatern",			"vn" },		// 05
+	{ "greaterv",			"vv" },		// 06
+	{ "isset",				"n" },		// 07
+	{ "issetv",				"v" },		// 08
+	{ "has",				"n" },		// 09
+	{ "obj.in.room",		"nv" },		// 0A
+	{ "posn",				"nnnnn" },	// 0B
+	{ "controller",			"n" },		// 0C
+	{ "have.key",			"" },		// 0D
+	{ "said",				"" },		// 0E
+	{ "compare.strings",	"ss" },		// 0F
+	{ "obj.in.box",			"nnnnn" },	// 10
+	{ "center.posn",		"nnnnn" },	// 11
+	{ "right.posn",			"nnnnn" },	// 12
 };
 
 Instruction insV2[] = {
-	{ "return",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "increment",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "decrement",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "assignn",			2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "assignv",			2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "addn",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "addv",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "subn",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "subv",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "lindirectv",			2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "lindirect",			2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "lindirectn",			2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set",				1, { A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "reset",				1, { A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "toggle",				1, { A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.v",				1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "reset.v",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "toggle.v",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "new.room",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "new.room.v",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "load.logics",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "load.logics.v",		1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "call",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "call.v",				1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "load.pic",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "draw.pic",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "show.pic",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "discard.pic",		1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "overlay.pic",		1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "show.pri.screen",	0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "load.view",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "load.view.v",		1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "discard.view",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "animate.obj",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "unanimate.all",		0, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "draw",				1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "erase",				1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "position",			3, { A_OBJ, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "position.v",			3, { A_OBJ, A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "get.posn",			3, { A_OBJ, A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "reposition",			3, { A_OBJ, A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.view",			2, { A_OBJ, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.view.v",			2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.loop",			2, { A_OBJ, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.loop.v",			2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "fix.loop",			1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "release.loop",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.cel",			2, { A_OBJ, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.cel.v",			2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "last.cel",			2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "current.cel",		2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "current.loop",		2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "current.view",		2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "number.of.loops",	2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.priority",		2, { A_OBJ, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.priority.v",		2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "release.priority",	1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "get.priority",		2, { A_OBJ, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "stop.update",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "start.update",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "force.update",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "ignore.horizon",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "observe.horizon",	1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.horizon",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "object.on.water",	1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "object.on.land",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "object.on.anything",	1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "ignore.objs",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "observe.objs",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "distance",			3, { A_OBJ, A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "stop.cycling",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "start.cycling",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "normal.cycle",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "end.of.loop",		2, { A_OBJ, A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "reverse.cycle",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "reverse.loop",		2, { A_OBJ, A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "cycle.time",			2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "stop.motion",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "start.motion",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "step.size",			2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "step.time",			2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "move.obj",			5, { A_OBJ, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } },
-	{ "move.obj.v",			5, { A_OBJ, A_VAR, A_VAR, A_VAR, A_VAR, A_NUL, A_NUL } },
-	{ "follow.ego",			3, { A_OBJ, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "wander",				1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "normal.motion",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.dir",			2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "get.dir",			2, { A_OBJ, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "ignore.blocks",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "observe.blocks",		1, { A_OBJ, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "block",				4, { A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL } },
-	{ "unblock",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "get",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "get.v",				1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "drop",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "put",				2, { A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "put.v",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "get.room.v",			2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "load.sound",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "sound",				2, { A_NUM, A_FLG, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "stop.sound",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "print",				1, { A_STR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "print.v",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "display",			3, { A_NUM, A_NUM, A_STR, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "display.v",			3, { A_VAR, A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "clear.lines",		3, { A_NUM, A_NUM, A_STR, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "text.screen",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "graphics",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.cursor.char",	1, { A_STR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.text.attribute",	2, { A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "shake.screen",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "configure.screen",	3, { A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "status.line.on",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "status.line.off",	0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.string",			2, { A_NUM, A_STR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "get.string",			2, { A_NUM, A_STR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "word.to.string",		2, { A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "parse",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "get.num",			2, { A_NUM, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "prevent.input",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "accept.input",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.key",			3, { A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "add.to.pic",			7, { A_NUM, A_NUM, A_NUM, A_NUM, A_NUM, A_NUM, A_NUM } },
-	{ "add.to.pic.v",		7, { A_VAR, A_VAR, A_VAR, A_VAR, A_VAR, A_VAR, A_VAR } },
-	{ "status",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "save.game",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "restore.game",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "init.disk",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "restart.game",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "show.obj",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "random",				3, { A_NUM, A_NUM, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "program.control",	0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "player.control",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "obj.status.v",		1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "quit",				1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "show.mem",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "pause",				0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "echo.line",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "cancel.line",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "init.joy",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "toggle.monitor",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "version",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "script.size",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.game.id",		1, { A_STR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "log",				1, { A_STR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.scan.start",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "reset.scan.start",	0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "reposition.to",		3, { A_OBJ, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "reposition.to.v",	3, { A_OBJ, A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "trace.on",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "trace.info", 		3, { A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "print.at",			4, { A_STR, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL } },
-	{ "print.at.v",			4, { A_VAR, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL } },
-	{ "discard.view.v",		1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "clear.text.rect",	5, { A_NUM, A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL } },
-	{ "set.upper.left",		2, { A_NUM, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.menu",			1, { A_STR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.menu.member",	2, { A_STR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "submit.menu",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "enable.member",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "disable.member",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "menu.input",			0, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "show.obj.v",			1, { A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "open.dialogue",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "close.dialogue",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "mul.n",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "mul.v",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "div.n",				2, { A_VAR, A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "div.v",				2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "close.window",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.simple",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "push.script",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "pop.script",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "hold.key",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "set.pri.base",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "discard.sound",		1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "hide.mouse",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "allow.menu",			1, { A_NUM, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "show.mouse",			0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "fence.mouse",		4, { A_NUM, A_NUM, A_NUM, A_NUM, A_NUL, A_NUL, A_NUL } },
-	{ "mouse.posn",			2, { A_VAR, A_VAR, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "release.key",		0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
-	{ "adj.ego.move.to.xy",	0, { A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL, A_NUL } },
+	{ "return",				"" },
+	{ "increment",			"v" },
+	{ "decrement",			"v" },
+	{ "assignn",			"vn" },
+	{ "assignv",			"vv" },
+	{ "addn",				"vn" },
+	{ "addv",				"vv" },
+	{ "subn",				"vn" },
+	{ "subv",				"vv" },
+	{ "lindirectv",			"vv" },
+	{ "lindirect",			"vv" },
+	{ "lindirectn",			"vn" },
+	{ "set",				"n" },
+	{ "reset",				"n" },
+	{ "toggle",				"n" },
+	{ "set.v",				"v" },
+	{ "reset.v",			"v" },
+	{ "toggle.v",			"v" },
+	{ "new.room",			"n" },
+	{ "new.room.v",			"v" },
+	{ "load.logics",		"n" },
+	{ "load.logics.v",		"v" },
+	{ "call",				"n" },
+	{ "call.v",				"v" },
+	{ "load.pic",			"v" },
+	{ "draw.pic",			"v" },
+	{ "show.pic",			"" },
+	{ "discard.pic",		"v" },
+	{ "overlay.pic",		"v" },
+	{ "show.pri.screen",	"" },
+	{ "load.view",			"n" },
+	{ "load.view.v",		"v" },
+	{ "discard.view",		"n" },
+	{ "animate.obj",		"n" },
+	{ "unanimate.all",		"" },
+	{ "draw",				"n" },
+	{ "erase",				"n" },
+	{ "position",			"nnn" },
+	{ "position.v",			"nvv" },
+	{ "get.posn",			"nvv" },
+	{ "reposition",			"nvv" },
+	{ "set.view",			"nn" },
+	{ "set.view.v",			"nv" },
+	{ "set.loop",			"nn" },
+	{ "set.loop.v",			"nv" },
+	{ "fix.loop",			"n" },
+	{ "release.loop",		"n" },
+	{ "set.cel",			"nn" },
+	{ "set.cel.v",			"nv" },
+	{ "last.cel",			"nv" },
+	{ "current.cel",		"nv" },
+	{ "current.loop",		"nv" },
+	{ "current.view",		"nv" },
+	{ "number.of.loops",	"nv" },
+	{ "set.priority",		"nn" },
+	{ "set.priority.v",		"nv" },
+	{ "release.priority",	"n" },
+	{ "get.priority",		"nn" },
+	{ "stop.update",		"n" },
+	{ "start.update",		"n" },
+	{ "force.update",		"n" },
+	{ "ignore.horizon",		"n" },
+	{ "observe.horizon",	"n" },
+	{ "set.horizon",		"n" },
+	{ "object.on.water",	"n" },
+	{ "object.on.land",		"n" },
+	{ "object.on.anything",	"n" },
+	{ "ignore.objs",		"n" },
+	{ "observe.objs",		"n" },
+	{ "distance",			"nnv" },
+	{ "stop.cycling",		"n" },
+	{ "start.cycling",		"n" },
+	{ "normal.cycle",		"n" },
+	{ "end.of.loop",		"nn" },
+	{ "reverse.cycle",		"n" },
+	{ "reverse.loop",		"nn" },
+	{ "cycle.time",			"nv" },
+	{ "stop.motion",		"n" },
+	{ "start.motion",		"n" },
+	{ "step.size",			"nv" },
+	{ "step.time",			"nv" },
+	{ "move.obj",			"nnnnn" },
+	{ "move.obj.v",			"nvvvv" },
+	{ "follow.ego",			"nnn" },
+	{ "wander",				"n" },
+	{ "normal.motion",		"n" },
+	{ "set.dir",			"nv" },
+	{ "get.dir",			"nv" },
+	{ "ignore.blocks",		"n" },
+	{ "observe.blocks",		"n" },
+	{ "block",				"nnnn" },
+	{ "unblock",			"" },
+	{ "get",				"n" },
+	{ "get.v",				"v" },
+	{ "drop",				"n" },
+	{ "put",				"nn" },
+	{ "put.v",				"vv" },
+	{ "get.room.v",			"vv" },
+	{ "load.sound",			"n" },
+	{ "sound",				"nn" },
+	{ "stop.sound",			"" },
+	{ "print",				"s" },
+	{ "print.v",			"v" },
+	{ "display",			"nns" },
+	{ "display.v",			"vvv" },
+	{ "clear.lines",		"nns" },
+	{ "text.screen",		"" },
+	{ "graphics",			"" },
+	{ "set.cursor.char",	"s" },
+	{ "set.text.attribute",	"nn" },
+	{ "shake.screen",		"n" },
+	{ "configure.screen",	"nnn" },
+	{ "status.line.on",		"" },
+	{ "status.line.off",	"" },
+	{ "set.string",			"ns" },
+	{ "get.string",			"ns" },
+	{ "word.to.string",		"nn" },
+	{ "parse",				"n" },
+	{ "get.num",			"nv" },
+	{ "prevent.input",		"" },
+	{ "accept.input",		"" },
+	{ "set.key",			"nnn" },
+	{ "add.to.pic",			"nnnnnnn" },
+	{ "add.to.pic.v",		"vvvvvvv" },
+	{ "status",				"" },
+	{ "save.game",			"" },
+	{ "restore.game",		"" },
+	{ "init.disk",			"" },
+	{ "restart.game",		"" },
+	{ "show.obj",			"n" },
+	{ "random",				"nnv" },
+	{ "program.control",	"" },
+	{ "player.control",		"" },
+	{ "obj.status.v",		"v" },
+	{ "quit",				"n" },
+	{ "show.mem",			"" },
+	{ "pause",				"" },
+	{ "echo.line",			"" },
+	{ "cancel.line",		"" },
+	{ "init.joy",			"" },
+	{ "toggle.monitor",		"" },
+	{ "version",			"" },
+	{ "script.size",		"n" },
+	{ "set.game.id",		"s" },
+	{ "log",				"s" },
+	{ "set.scan.start",		"" },
+	{ "reset.scan.start",	"" },
+	{ "reposition.to",		"nnn" },
+	{ "reposition.to.v",	"nvv" },
+	{ "trace.on",			"" },
+	{ "trace.info", 		"nnn" },
+	{ "print.at",			"snnn" },
+	{ "print.at.v",			"vnnn" },
+	{ "discard.view.v",		"v" },
+	{ "clear.text.rect",	"nnnnn" },
+	{ "set.upper.left",		"nn" },
+	{ "set.menu",			"s" },
+	{ "set.menu.member",	"sn" },
+	{ "submit.menu",		"" },
+	{ "enable.member",		"n" },
+	{ "disable.member",		"n" },
+	{ "menu.input",			"" },
+	{ "show.obj.v",			"v" },
+	{ "open.dialogue",		"" },
+	{ "close.dialogue",		"" },
+	{ "mul.n",				"vn" },
+	{ "mul.v",				"vv" },
+	{ "div.n",				"vn" },
+	{ "div.v",				"vv" },
+	{ "close.window",		"" },
+	{ "set.simple",			"n" },
+	{ "push.script",		"" },
+	{ "pop.script",			"" },
+	{ "hold.key",			"" },
+	{ "set.pri.base",		"n" },
+	{ "discard.sound",		"n" },
+	{ "hide.mouse",			"" },
+	{ "allow.menu",			"n" },
+	{ "show.mouse",			"" },
+	{ "fence.mouse",		"nnnn" },
+	{ "mouse.posn",			"vv" },
+	{ "release.key",		"" },
+	{ "adj.ego.move.to.xy",	"" },
 };
 
 Disassembler::Disassembler(Common::Filename path) {
@@ -443,16 +443,16 @@ void Disassembler::setupV2() {
 
 void Disassembler::doOpcode() {
 	int op = _script[_ip++];
-	int n = _insMapping[op]->n;
+	int n = _insMapping[op]->getArgumentsLength();
 
 	indent();
 	printf("%s(", _insMapping[op]->name);
 	for (int i = 0; i < n; i++) {
-		switch (_insMapping[op]->type[i]) {
-		case A_VAR:
+		switch (_insMapping[op]->args[i]) {
+		case 'v':
 			printf("v%d", _script[_ip++]);
 			break;
-		case A_STR:
+		case 's':
 			printf("\"%s\"", _strings[_script[_ip++] - 1].c_str());
 			break;
 		default:
@@ -514,15 +514,15 @@ void Disassembler::doSaid() {
 
 void Disassembler::doCondition() {
 	int op = _script[_ip++];
-	int n = _insMapping_cond[op]->n;
+	int n = _insMapping_cond[op]->getArgumentsLength();
 
 	printf("%s(", _insMapping_cond[op]->name);
 	for (int i = 0; i < n; i++) {
-		switch (_insMapping_cond[op]->type[i]) {
-		case A_VAR:
+		switch (_insMapping_cond[op]->args[i]) {
+		case 'v':
 			printf("v%d", _script[_ip++]);
 			break;
-		case A_STR:
+		case 's':
 			printf("\"%s\"", _strings[_script[_ip++] - 1].c_str());
 			break;
 		default:
