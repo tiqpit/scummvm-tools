@@ -49,7 +49,6 @@ void ExtractDDPG::execute() {
 	Common::Filename inpath(_inputPaths[0].path);
 	Common::Filename &outpath = _outputPath;
 	Common::Filename dirpath;
-	Common::File dir;
 
 	if (outpath.empty()) {
 		outpath.setFullPath("out/");
@@ -63,103 +62,52 @@ void ExtractDDPG::execute() {
 
 	outpath.setFullName("vol.0");
 
-	Common::File in(inpath, "rb");
-	Common::File out(outpath, "wb");
+	_in.open(inpath, "rb");
+	_out.open(outpath, "wb");
 
-	if (in.size() != 40 * 2 * 9 * 512) // tracks * sides * sectors * sector size = 368640
+	if (_in.size() != 40 * 2 * 9 * 512) // tracks * sides * sectors * sector size = 368640
 		error("This is not a disk image!");
+
+	_volumeOffset = 0;
 
 	// Extract LOGIC files
 	dirpath.setFullName("logdir");
-	dir.open(dirpath, "wb");
+	_dir.open(dirpath, "wb");
 	print("Extracting LOGIC files... ");
-	int n = 0;
-	for (int i = 0; i <= LOGDIR_MAX; i++) {
-		// Read directory entry from the disk image
-		int sec, off;
-		in.seek(LOGDIR + 3 * i, SEEK_SET);
-		if (!readDirEntry(in, &sec, &off)) {
-			writeDirEntry(dir, -1);
-			continue;
-		}
-		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
-
-		// Write directory entry and extract file
-		writeDirEntry(dir, n);
-		n += extractFile(in, out);
-	}
-	dir.close();
+	extractDir(LOGDIR, LOGDIR_MAX);
+	_dir.close();
 	print("done!\n");
 
 	// Extract PICTURE files
 	dirpath.setFullName("picdir");
-	dir.open(dirpath, "wb");
+	_dir.open(dirpath, "wb");
 	print("Extracting PICTURE files... ");
-	for (int i = 0; i <= PICDIR_MAX; i++) {
-		// Read directory entry from the disk image
-		int sec, off;
-		in.seek(PICDIR + 3 * i, SEEK_SET);
-		if (!readDirEntry(in, &sec, &off)) {
-			writeDirEntry(dir, -1);
-			continue;
-		}
-		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
-
-		// Write directory entry and extract file
-		writeDirEntry(dir, n);
-		n += extractFile(in, out);
-	}
-	dir.close();
+	extractDir(PICDIR, PICDIR_MAX);
+	_dir.close();
 	print("done!\n");
 
 	// Extract VIEW files
 	dirpath.setFullName("viewdir");
-	dir.open(dirpath, "wb");
+	_dir.open(dirpath, "wb");
 	print("Extracting VIEW files... ");
-	for (int i = 0; i <= VIEWDIR_MAX; i++) {
-		// Read directory entry from the disk image
-		int sec, off;
-		in.seek(VIEWDIR + 3 * i, SEEK_SET);
-		if (!readDirEntry(in, &sec, &off)) {
-			writeDirEntry(dir, -1);
-			continue;
-		}
-		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
-
-		// Write directory entry and extract file
-		writeDirEntry(dir, n);
-		n += extractFile(in, out);
-	}
-	dir.close();
+	extractDir(VIEWDIR, VIEWDIR_MAX);
+	_dir.close();
 	print("done!\n");
 
 	// Extract SOUND files
 	dirpath.setFullName("snddir");
-	dir.open(dirpath, "wb");
+	_dir.open(dirpath, "wb");
 	print("Extracting SOUND files... ");
-	for (int i = 0; i <= SNDDIR_MAX; i++) {
-		// Read directory entry from the disk image
-		int sec, off;
-		in.seek(SNDDIR + 3 * i, SEEK_SET);
-		if (!readDirEntry(in, &sec, &off)) {
-			writeDirEntry(dir, -1);
-			continue;
-		}
-		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
-
-		// Write directory entry and extract file
-		writeDirEntry(dir, n);
-		n += extractFile(in, out);
-	}
-	dir.close();
+	extractDir(SNDDIR, SNDDIR_MAX);
+	_dir.close();
 	print("done!\n");
 }
 
 // Entry format: ssss ssssssso oooooooo (s=sector, o=offset)
-bool ExtractDDPG::readDirEntry(Common::File &in, int *sec, int *off) {
-	int b0 = in.readByte();
-	int b1 = in.readByte();
-	int b2 = in.readByte();
+bool ExtractDDPG::readDirEntry(int *sec, int *off) {
+	int b0 = _in.readByte();
+	int b1 = _in.readByte();
+	int b2 = _in.readByte();
 	if (b0 == 0xFF && b1 == 0xFF && b2 == 0xFF)
 		return false;
 
@@ -168,23 +116,23 @@ bool ExtractDDPG::readDirEntry(Common::File &in, int *sec, int *off) {
 	return true;
 }
 
-void ExtractDDPG::writeDirEntry(Common::File &dir, int off) {
+void ExtractDDPG::writeDirEntry(int off) {
 	if (off >= 0) {
-		dir.writeByte((off >> 16) & 0xF);
-		dir.writeByte((off >> 8) & 0xFF);
-		dir.writeByte(off & 0xFF);
+		_dir.writeByte((off >> 16) & 0xF);
+		_dir.writeByte((off >> 8) & 0xFF);
+		_dir.writeByte(off & 0xFF);
 	} else {
-		dir.writeByte(0xFF);
-		dir.writeByte(0xFF);
-		dir.writeByte(0xFF);
+		_dir.writeByte(0xFF);
+		_dir.writeByte(0xFF);
+		_dir.writeByte(0xFF);
 	}
 }
 
-int ExtractDDPG::extractFile(Common::File &in, Common::File &out) {
+int ExtractDDPG::extractFile() {
 	// Check header from image
-	int signature = in.readUint16BE();
-	in.readByte();
-	int length = in.readUint16LE();
+	int signature = _in.readUint16BE();
+	_in.readByte();
+	int length = _in.readUint16LE();
 
 	if (signature != 0x1234)
 		error("Invalid signature in a resource file");
@@ -192,23 +140,40 @@ int ExtractDDPG::extractFile(Common::File &in, Common::File &out) {
 		error("Invalid length in a resource file");
 
 	// Write header to VOL file
-	out.writeByte(0x12);
-	out.writeByte(0x34);
-	out.writeByte(0);
-	out.writeByte(length);
-	out.writeByte(length >> 8);
+	_out.writeByte(0x12);
+	_out.writeByte(0x34);
+	_out.writeByte(0);
+	_out.writeByte(length);
+	_out.writeByte(length >> 8);
 	
 	// Extract data from image and write it to VOL file
 	char buf[512];
 	unsigned int n = length;
 	while (n > 0) {
 		int s = n < sizeof(buf) ? n : sizeof(buf);
-		in.read_noThrow(buf, s);
-		out.write(buf, s);
+		_in.read_noThrow(buf, s);
+		_out.write(buf, s);
 		n -= s;
 	}
 
 	return length + 5;
+}
+
+void ExtractDDPG::extractDir(int offset, int max) {
+	for (int i = 0; i <= max; i++) {
+		// Read directory entry from the disk image
+		int sec, off;
+		_in.seek(offset + 3 * i, SEEK_SET);
+		if (!readDirEntry(&sec, &off)) {
+			writeDirEntry(-1);
+			continue;
+		}
+		_in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
+
+		// Write directory entry and extract file
+		writeDirEntry(_volumeOffset);
+		_volumeOffset += extractFile();
+	}
 }
 
 #ifdef STANDALONE_MAIN

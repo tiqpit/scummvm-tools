@@ -52,7 +52,6 @@ void ExtractBC::execute() {
 	Common::Filename &outpath = _outputPath;
 	Common::Filename dirpath;
 	Common::Filename volpath0, volpath1, volpath2;
-	Common::File dir;
 
 	if (outpath.empty()) {
 		dirpath.setFullPath("out/");
@@ -73,127 +72,59 @@ void ExtractBC::execute() {
 	volpath1.setFullName("vol.1");
 	volpath2.setFullName("vol.2");
 	
-	Common::File in0(inpath0, "rb");
-	Common::File in1(inpath1, "rb");
-	Common::File vol0(volpath0, "wb");
-	Common::File vol1(volpath1, "wb");
-	Common::File vol2(volpath2, "wb");
+	_in0.open(inpath0, "rb");
+	_in1.open(inpath1, "rb");
+	_vol0.open(volpath0, "wb");
+	_vol1.open(volpath1, "wb");
+	_vol2.open(volpath2, "wb");
 
-	if (in0.size() != IMAGE_SIZE)
+	if (_in0.size() != IMAGE_SIZE)
 		error("Invalid size for a supposed disk image (%s)", inpath0.getFullPath().c_str());
-	if (in1.size() != IMAGE_SIZE)
+	if (_in1.size() != IMAGE_SIZE)
 		error("Invalid size for a supposed disk image (%s)", inpath1.getFullPath().c_str());
 
-	int o0 = 0;
-	int o1 = 0;
-	int o2 = 0;
+	_vol0Offset = 0;
+	_vol1Offset = 0;
+	_vol2Offset = 0;
 
 	// Extract LOGIC files
 	dirpath.setFullName("logdir");
-	dir.open(dirpath, "wb");
+	_dir.open(dirpath, "wb");
 	print("Extracting LOGIC files... ");
-	for (int i = 0; i <= LOGDIR_MAX; i++) {
-		// Read directory entry from the disk image
-		int sec, off, vol;
-		in0.seek(LOGDIR + 3 * i, SEEK_SET);
-		if (!readDirEntry(in0, &sec, &off, &vol)) {
-			writeDirEntry(dir, -1, -1);
-			continue;
-		}
-
-		Common::File &in = (vol == 2) ? in1 : in0;
-		Common::File &out = (vol == 0) ? vol0 : ((vol == 1) ? vol1 : vol2);
-		int &o = (vol == 0) ? o0 : ((vol == 1) ? o1 : o2);
-		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
-
-		// Write directory entry and extract file
-		writeDirEntry(dir, o, vol);
-		o += extractFile(in, out, vol);
-	}
-	dir.close();
+	extractDir(LOGDIR, LOGDIR_MAX);
+	_dir.close();
 	print("done!\n");
 
 	// Extract VIEW files
 	dirpath.setFullName("viewdir");
-	dir.open(dirpath, "wb");
+	_dir.open(dirpath, "wb");
 	print("Extracting VIEW files... ");
-	for (int i = 0; i <= VIEWDIR_MAX; i++) {
-		// Read directory entry from the disk image
-		int sec, off, vol;
-		in0.seek(VIEWDIR + 3 * i, SEEK_SET);
-		if (!readDirEntry(in0, &sec, &off, &vol)) {
-			writeDirEntry(dir, -1, -1);
-			continue;
-		}
-
-		Common::File &in = (vol == 2) ? in1 : in0;
-		Common::File &out = (vol == 0) ? vol0 : ((vol == 1) ? vol1 : vol2);
-		int &o = (vol == 0) ? o0 : ((vol == 1) ? o1 : o2);
-		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
-
-		// Write directory entry and extract file
-		writeDirEntry(dir, o, vol);
-		o += extractFile(in, out, vol);
-	}
-	dir.close();
+	extractDir(VIEWDIR, VIEWDIR_MAX);
+	_dir.close();
 	print("done!\n");
 
 	// Extract PICTURE files
 	dirpath.setFullName("picdir");
-	dir.open(dirpath, "wb");
+	_dir.open(dirpath, "wb");
 	print("Extracting PICTURE files... ");
-	for (int i = 0; i <= PICDIR_MAX; i++) {
-		// Read directory entry from the disk image
-		int sec, off, vol;
-		in0.seek(PICDIR + 3 * i, SEEK_SET);
-		if (!readDirEntry(in0, &sec, &off, &vol)) {
-			writeDirEntry(dir, -1, -1);
-			continue;
-		}
-
-		Common::File &in = (vol == 2) ? in1 : in0;
-		Common::File &out = (vol == 0) ? vol0 : ((vol == 1) ? vol1 : vol2);
-		int &o = (vol == 0) ? o0 : ((vol == 1) ? o1 : o2);
-		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
-
-		// Write directory entry and extract file
-		writeDirEntry(dir, o, vol);
-		o += extractFile(in, out, vol);
-	}
-	dir.close();
+	extractDir(PICDIR, PICDIR_MAX);
+	_dir.close();
 	print("done!\n");
 
 	// Extract SOUND files
 	dirpath.setFullName("snddir");
-	dir.open(dirpath, "wb");
+	_dir.open(dirpath, "wb");
 	print("Extracting SOUND files... ");
-	for (int i = 0; i <= SNDDIR_MAX; i++) {
-		// Read directory entry from the disk image
-		int sec, off, vol;
-		in0.seek(SNDDIR + 3 * i, SEEK_SET);
-		if (!readDirEntry(in0, &sec, &off, &vol)) {
-			writeDirEntry(dir, -1, -1);
-			continue;
-		}
-
-		Common::File &in = (vol == 2) ? in1 : in0;
-		Common::File &out = (vol == 0) ? vol0 : ((vol == 1) ? vol1 : vol2);
-		int &o = (vol == 0) ? o0 : ((vol == 1) ? o1 : o2);
-		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
-
-		// Write directory entry and extract file
-		writeDirEntry(dir, o, vol);
-		o += extractFile(in, out, vol);
-	}
-	dir.close();
+	extractDir(SNDDIR, SNDDIR_MAX);
+	_dir.close();
 	print("done!\n");
 }
 
 // Entry format: xxtttttt ssssssho oooooooo
-bool ExtractBC::readDirEntry(Common::File &in, int *sec, int *off, int *vol) {
-	int b0 = in.readByte();
-	int b1 = in.readByte();
-	int b2 = in.readByte();
+bool ExtractBC::readDirEntry(int *sec, int *off, int *vol) {
+	int b0 = _in0.readByte();
+	int b1 = _in0.readByte();
+	int b2 = _in0.readByte();
 	if (b0 == 0xFF && b1 == 0xFF && b2 == 0xFF)
 		return false;
 
@@ -203,15 +134,15 @@ bool ExtractBC::readDirEntry(Common::File &in, int *sec, int *off, int *vol) {
 	return true;
 }
 
-void ExtractBC::writeDirEntry(Common::File &dir, int off, int vol) {
+void ExtractBC::writeDirEntry(int off, int vol) {
 	if (off >= 0) {
-		dir.writeByte(((off >> 16) & 0xF) | ((vol & 0xF) << 4));
-		dir.writeByte((off >> 8) & 0xFF);
-		dir.writeByte(off & 0xFF);
+		_dir.writeByte(((off >> 16) & 0xF) | ((vol & 0xF) << 4));
+		_dir.writeByte((off >> 8) & 0xFF);
+		_dir.writeByte(off & 0xFF);
 	} else {
-		dir.writeByte(0xFF);
-		dir.writeByte(0xFF);
-		dir.writeByte(0xFF);
+		_dir.writeByte(0xFF);
+		_dir.writeByte(0xFF);
+		_dir.writeByte(0xFF);
 	}
 }
 
@@ -244,6 +175,27 @@ int ExtractBC::extractFile(Common::File &in, Common::File &out, int vol) {
 	}
 
 	return length + 5;
+}
+
+void ExtractBC::extractDir(int offset, int max) {
+	for (int i = 0; i <= max; i++) {
+		// Read directory entry from the disk image
+		int sec, off, vol;
+		_in0.seek(offset + 3 * i, SEEK_SET);
+		if (!readDirEntry(&sec, &off, &vol)) {
+			writeDirEntry(-1, -1);
+			continue;
+		}
+
+		Common::File &in = (vol == 2) ? _in1 : _in0;
+		Common::File &out = (vol == 0) ? _vol0 : ((vol == 1) ? _vol1 : _vol2);
+		int &o = (vol == 0) ? _vol0Offset : ((vol == 1) ? _vol1Offset : _vol2Offset);
+		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
+
+		// Write directory entry and extract file
+		writeDirEntry(o, vol);
+		o += extractFile(in, out, vol);
+	}
 }
 
 #ifdef STANDALONE_MAIN

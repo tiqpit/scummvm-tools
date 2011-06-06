@@ -26,10 +26,17 @@ class ExtractDDPG : public Tool {
 public:
 	ExtractDDPG(const std::string &name = "extract_ddpg");
 	virtual void execute();
-	
-	bool readDirEntry(Common::File &, int *, int *);
-	int extractFile(Common::File &, Common::File &);
-	void writeDirEntry(Common::File &, int);
+
+private:
+	bool readDirEntry(int *, int *);
+	void writeDirEntry(int);
+	int extractFile();
+	void extractDir(int, int);
+
+	Common::File _in;
+	Common::File _out;
+	Common::File _dir;
+	int _volumeOffset;
 };
 
 #endif

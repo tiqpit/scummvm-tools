@@ -26,9 +26,16 @@ public:
 	ExtractBC(const std::string &name = "extract_bc");
 	virtual void execute();
 
-	bool readDirEntry(Common::File &, int *, int *, int *);
+private:
+	bool readDirEntry(int *, int *, int *);
+	void writeDirEntry(int, int);
 	int extractFile(Common::File &, Common::File &, int);
-	void writeDirEntry(Common::File &, int, int);
+	void extractDir(int, int);
+
+	Common::File _in0, _in1;
+	Common::File _dir;
+	Common::File _vol0, _vol1, _vol2;
+	int _vol0Offset, _vol1Offset, _vol2Offset;
 };
 
 #endif
