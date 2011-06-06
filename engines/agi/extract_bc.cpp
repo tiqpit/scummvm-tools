@@ -21,19 +21,18 @@
 
 #define IMAGE_SIZE 368640 // = 40 * 2 * 9 * 512 = tracks * sides * sectors * sector size
 
-#define offsetTHS(track,head,sector) (512 * ((((track) * 2 + (head)) * 9) + (sector)))
-#define offset(sector) offsetTHS(sector / 18, (sector % 18) / 9, (sector % 18) % 9)
+#define SECTOR_OFFSET(s) ((s) * 512)
 
-#define LOGDIR		offset(90) + 5
+#define LOGDIR		SECTOR_OFFSET(90) + 5
 #define LOGDIR_MAX	118
 
-#define VIEWDIR		offset(96) + 5
+#define VIEWDIR		SECTOR_OFFSET(96) + 5
 #define VIEWDIR_MAX	180
 
-#define PICDIR		offset(93) + 8
+#define PICDIR		SECTOR_OFFSET(93) + 8
 #define PICDIR_MAX	117
 
-#define SNDDIR		offset(99) + 5
+#define SNDDIR		SECTOR_OFFSET(99) + 5
 #define SNDDIR_MAX	29
 
 ExtractBC::ExtractBC(const std::string &name) : Tool(name, TOOLTYPE_EXTRACTION) {
@@ -105,7 +104,7 @@ void ExtractBC::execute() {
 		Common::File &in = (vol == 2) ? in1 : in0;
 		Common::File &out = (vol == 0) ? vol0 : ((vol == 1) ? vol1 : vol2);
 		int &o = (vol == 0) ? o0 : ((vol == 1) ? o1 : o2);
-		in.seek(offset(sec) + off, SEEK_SET);
+		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
 		writeDirEntry(dir, o, vol);
@@ -130,7 +129,7 @@ void ExtractBC::execute() {
 		Common::File &in = (vol == 2) ? in1 : in0;
 		Common::File &out = (vol == 0) ? vol0 : ((vol == 1) ? vol1 : vol2);
 		int &o = (vol == 0) ? o0 : ((vol == 1) ? o1 : o2);
-		in.seek(offset(sec) + off, SEEK_SET);
+		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
 		writeDirEntry(dir, o, vol);
@@ -155,7 +154,7 @@ void ExtractBC::execute() {
 		Common::File &in = (vol == 2) ? in1 : in0;
 		Common::File &out = (vol == 0) ? vol0 : ((vol == 1) ? vol1 : vol2);
 		int &o = (vol == 0) ? o0 : ((vol == 1) ? o1 : o2);
-		in.seek(offset(sec) + off, SEEK_SET);
+		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
 		writeDirEntry(dir, o, vol);
@@ -180,7 +179,7 @@ void ExtractBC::execute() {
 		Common::File &in = (vol == 2) ? in1 : in0;
 		Common::File &out = (vol == 0) ? vol0 : ((vol == 1) ? vol1 : vol2);
 		int &o = (vol == 0) ? o0 : ((vol == 1) ? o1 : o2);
-		in.seek(offset(sec) + off, SEEK_SET);
+		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
 		writeDirEntry(dir, o, vol);

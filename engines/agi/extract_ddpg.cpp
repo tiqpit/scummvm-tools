@@ -20,21 +20,20 @@
 #include <stdio.h>
 #include "extract_ddpg.h"
 
-#define offsetTHS(track,head,sector) (512 * ((((track) * 2 + (head)) * 9) + (sector)))
-#define offset(sector) offsetTHS(sector / 18, (sector % 18) / 9, (sector % 18) % 9)
+#define SECTOR_OFFSET(s) ((s) * 512)
 
 #define BASE_SECTOR	0x1C2
 
-#define LOGDIR		offset(171) + 5
+#define LOGDIR		SECTOR_OFFSET(171) + 5
 #define LOGDIR_MAX	43
 
-#define PICDIR		offset(180) + 5
+#define PICDIR		SECTOR_OFFSET(180) + 5
 #define PICDIR_MAX	30
 
-#define VIEWDIR		offset(189) + 5
+#define VIEWDIR		SECTOR_OFFSET(189) + 5
 #define VIEWDIR_MAX	171
 
-#define SNDDIR		offset(198) + 5
+#define SNDDIR		SECTOR_OFFSET(198) + 5
 #define SNDDIR_MAX	64
 
 ExtractDDPG::ExtractDDPG(const std::string &name) : Tool(name, TOOLTYPE_EXTRACTION) {
@@ -55,6 +54,8 @@ void ExtractDDPG::execute() {
 	if (outpath.empty()) {
 		outpath.setFullPath("out/");
 		dirpath.setFullPath("out/");
+	} else {
+		dirpath.setFullPath(outpath.getFullPath());
 	}
 
 	if (!Common::isDirectory(dirpath.getFullPath().c_str()))
@@ -81,7 +82,7 @@ void ExtractDDPG::execute() {
 			writeDirEntry(dir, -1);
 			continue;
 		}
-		in.seek(offset(sec) + off, SEEK_SET);
+		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
 		writeDirEntry(dir, n);
@@ -102,7 +103,7 @@ void ExtractDDPG::execute() {
 			writeDirEntry(dir, -1);
 			continue;
 		}
-		in.seek(offset(sec) + off, SEEK_SET);
+		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
 		writeDirEntry(dir, n);
@@ -123,7 +124,7 @@ void ExtractDDPG::execute() {
 			writeDirEntry(dir, -1);
 			continue;
 		}
-		in.seek(offset(sec) + off, SEEK_SET);
+		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
 		writeDirEntry(dir, n);
@@ -144,7 +145,7 @@ void ExtractDDPG::execute() {
 			writeDirEntry(dir, -1);
 			continue;
 		}
-		in.seek(offset(sec) + off, SEEK_SET);
+		in.seek(SECTOR_OFFSET(sec) + off, SEEK_SET);
 
 		// Write directory entry and extract file
 		writeDirEntry(dir, n);
