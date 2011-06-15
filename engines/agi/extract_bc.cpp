@@ -35,6 +35,8 @@
 #define SNDDIR		SECTOR_OFFSET(99) + 5
 #define SNDDIR_MAX	29
 
+#define WORDS		0x26D
+
 ExtractBC::ExtractBC(const std::string &name) : Tool(name, TOOLTYPE_EXTRACTION) {
 	ToolInput input0, input1;
 	input0.format = "*.dsk";
@@ -54,6 +56,7 @@ void ExtractBC::execute() {
 	Common::Filename volpath0, volpath1, volpath2;
 
 	if (outpath.empty()) {
+		outpath.setFullPath("out/");
 		dirpath.setFullPath("out/");
 		volpath0.setFullPath("out/");
 		volpath1.setFullPath("out/");
@@ -118,6 +121,22 @@ void ExtractBC::execute() {
 	extractDir(SNDDIR, SNDDIR_MAX);
 	_dir.close();
 	print("done!\n");
+
+	// Extract words.tok
+	Common::File out;
+	outpath.setFullName("words.tok");
+	out.open(outpath, "wb");
+	print("Extracting words.tok... ");
+	_in0.seek(SECTOR_OFFSET(WORDS), SEEK_SET);
+	int signature = _in0.readUint16BE();
+	_in0.readByte();
+	int length = _in0.readUint16LE();
+	if (signature != 0x1234)
+		error("invalid signature");
+	out.writeUint16LE(length);
+	extractData(_in0, out, length);
+	out.close();
+	print("done!\n");
 }
 
 // Entry format: xxtttttt ssssssho oooooooo
@@ -146,6 +165,17 @@ void ExtractBC::writeDirEntry(int off, int vol) {
 	}
 }
 
+void ExtractBC::extractData(Common::File &in, Common::File &out, int length) {
+	char buf[512];
+	unsigned int n = length;
+	while (n > 0) {
+		int s = n < sizeof(buf) ? n : sizeof(buf);
+		in.read_noThrow(buf, s);
+		out.write(buf, s);
+		n -= s;
+	}
+}
+
 int ExtractBC::extractFile(Common::File &in, Common::File &out, int vol) {
 	// Check header from image
 	int signature = in.readUint16BE();
@@ -165,14 +195,7 @@ int ExtractBC::extractFile(Common::File &in, Common::File &out, int vol) {
 	out.writeByte(length >> 8);
 	
 	// Extract data from image and write it to VOL file
-	char buf[512];
-	unsigned int n = length;
-	while (n > 0) {
-		int s = n < sizeof(buf) ? n : sizeof(buf);
-		in.read_noThrow(buf, s);
-		out.write(buf, s);
-		n -= s;
-	}
+	extractData(in, out, length);
 
 	return length + 5;
 }

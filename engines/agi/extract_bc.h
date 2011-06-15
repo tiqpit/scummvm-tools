@@ -29,6 +29,7 @@ public:
 private:
 	bool readDirEntry(int *, int *, int *);
 	void writeDirEntry(int, int);
+	void extractData(Common::File &, Common::File &, int);
 	int extractFile(Common::File &, Common::File &, int);
 	void extractDir(int, int);
 
