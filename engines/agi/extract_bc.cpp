@@ -20,22 +20,18 @@
 #include "extract_bc.h"
 
 #define IMAGE_SIZE 368640 // = 40 * 2 * 9 * 512 = tracks * sides * sectors * sector size
-
 #define SECTOR_OFFSET(s) ((s) * 512)
 
 #define LOGDIR		SECTOR_OFFSET(90) + 5
 #define LOGDIR_MAX	118
-
 #define VIEWDIR		SECTOR_OFFSET(96) + 5
 #define VIEWDIR_MAX	180
-
 #define PICDIR		SECTOR_OFFSET(93) + 8
 #define PICDIR_MAX	117
-
 #define SNDDIR		SECTOR_OFFSET(99) + 5
 #define SNDDIR_MAX	29
-
 #define WORDS		0x26D
+#define OBJECTS		0x1E6
 
 ExtractBC::ExtractBC(const std::string &name) : Tool(name, TOOLTYPE_EXTRACTION) {
 	ToolInput input0, input1;
@@ -131,6 +127,21 @@ void ExtractBC::execute() {
 	int signature = _in0.readUint16BE();
 	_in0.readByte();
 	int length = _in0.readUint16LE();
+	if (signature != 0x1234)
+		error("invalid signature");
+	out.writeUint16LE(length);
+	extractData(_in0, out, length);
+	out.close();
+	print("done!\n");
+
+	// Extract object
+	outpath.setFullName("object");
+	out.open(outpath, "wb");
+	print("Extracting object... ");
+	_in0.seek(SECTOR_OFFSET(OBJECTS), SEEK_SET);
+	signature = _in0.readUint16BE();
+	_in0.readByte();
+	length = _in0.readUint16LE();
 	if (signature != 0x1234)
 		error("invalid signature");
 	out.writeUint16LE(length);
